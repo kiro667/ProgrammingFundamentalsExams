@@ -1,100 +1,114 @@
 ﻿using System;
+using System.Linq;
+using System.Text;
 using System.Collections.Generic;
-using System.Linq;//vmest0 grains e Value
 
-namespace GrainsofSands
+namespace SoftuniCoursePlanning
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main(string[] args)//Da pita na Swap  komandata dali ne moje da stane s Insert i remove
         {
-            List<int> seq = Console.ReadLine().Split().
-                Select(int.Parse).ToList();
-
+            List<string> lessons = Console.ReadLine().Split(", ", StringSplitOptions.RemoveEmptyEntries).ToList();
             while (true)
             {
-                string input = Console.ReadLine();
-                if (input == "Mort")
+                string instruction = Console.ReadLine();
+                if (instruction == "course start")
                 {
                     break;
                 }
-                string[] data = input.Split();
-                string command = data[0];
+                string[] command = instruction.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
 
-                if (command == "Add")
+                if (command[0] == "Add")
                 {
-                    int numb = int.Parse(data[1]);
-                    seq.Add(numb);
-                }
-                else if (command == "Remove")
-                {
-                    int numb = int.Parse(data[1]);
-
-                    if (seq.Contains(numb))//числото може да не е валиден индекс,
-                                           //но да се садържа в поредицата
+                    if (!lessons.Contains(command[1]))
                     {
-                        int index1 = seq.IndexOf(numb);
-                        seq.RemoveAt(index1);//няма нужда от допълнителна проверка.
-                                             //за да влезе до тук значи числото е част от поредицата
-
+                        lessons.Add(command[1]);
                     }
-                    else
+                }
+                else if (command[0] == "Insert")
+                {
+                    int insertIndex = int.Parse(command[2]);
+                    if (!lessons.Contains(command[1]) && insertIndex >= 0 && insertIndex < lessons.Count)
                     {
-                        int index = numb;
-                        if (index >= 0 && index < seq.Count)
+                        lessons.Insert(insertIndex, command[1]);
+                    }
+                }
+                else if (command[0] == "Remove")
+                {
+                    if (lessons.Contains(command[1]) && lessons.Contains($"{command[1]}-Exercise"))
+                    {
+                        lessons.RemoveAt(lessons.IndexOf($"{command[1]}-Exercise"));
+                        lessons.RemoveAt(lessons.IndexOf(command[1]));
+                    }
+                    else if (lessons.Contains(command[1]))
+                    {
+                        lessons.RemoveAt(lessons.IndexOf(command[1]));
+                    }
+                }
+
+                else if (command[0] == "Swap")
+                {
+
+                    int index1 = lessons.IndexOf(command[1]);
+                    int index2 = lessons.IndexOf(command[2]);
+
+
+                    if (index1 >= 0 && index2 >= 0 && index1 < lessons.Count && index2 < lessons.Count)
+                    {
+                        lessons[index1] = command[2];
+                        lessons[index2] = command[1];
+
+
+                        if (index1 + 1 >= 0 && index1 + 1 < lessons.Count && lessons[index1 + 1] == $"{command[1]}-Exercise")
                         {
-                            seq.RemoveAt(index);//махаме само ако е валиден индекс
+
+                            lessons.RemoveAt(index1 + 1);
+                            index1 = lessons.IndexOf(command[1]);//za6toto ve4e sum premestil
+                                                                 //ne6toto koeto se namira na index2+1 i ne6tata 
+                                                                 //             sa se razmestili
+                            lessons.Insert(index1 + 1, $"{command[1]}-Exercise");
                         }
-                    }
-                }
-                else if (command == "Replace")
-                {
-                    int value = int.Parse(data[1]);
-                    int replacement = int.Parse(data[2]);
-
-                    if (seq.Contains(value))//тази проверка ти гарантира валиден индекс
-                    {
-                        int index1 = seq.IndexOf(value);
-                        seq.RemoveAt(index1);
-                        seq.Insert(index1, replacement);
-                    }
-
-
-                }
-                else if (command == "Increase")
-                {
-                    int value = int.Parse(data[1]);
-                    //пише да се намери първата стойност която не е по малка от value.
-                    //ти правиш точна проверка
-                    List<int> bigger = seq.Where(x => x >= value).ToList();
-                    //вземаме всички които са по големи или равни на value
-                    if (bigger.Count > 0)//имаме числа които отговарят на критерия
-                    {
-                        int needed = bigger.First();//връща първия елемент
-                        for (int i = 0; i < seq.Count; i++)
+                        else if (index2 + 1 >= 0 && index2 + 1 < lessons.Count && lessons[index2 + 1] == $"{command[2]}-Exercise")
                         {
-                            seq[i] += needed;
+                            lessons.RemoveAt(index2 + 1);
+                            index2 = lessons.IndexOf(command[2]);//za6toto ve4e sum premestil
+                                                                 //ne6toto koeto se namira na index2+1 i ne6tata sa se razmestili
 
+                            lessons.Insert(index2 + 1, $"{command[2]}-Exercise");
                         }
-                    }
-                    else
-                    {
-                        int needed = seq.Last();//връща последния елемент
-                        for (int i = 0; i < seq.Count; i++)
-                        {
-                            seq[i] += needed;
 
-                        }
+
                     }
+
+
                 }
-                else if (command == "Collapse")
+                else if (command[0] == "Exercise")
                 {
-                    int value = int.Parse(data[1]);
-                    seq = seq.Where(x => x >= value).ToList();
-                    //връща стойностите които са по големи или равни на value
+                    int lessonIndex = lessons.IndexOf(command[1]);
+                    if (lessons.Contains(command[1]) && !lessons.Contains($"{command[1]}-Exercise"))
+                    {
+                        lessons.Insert(lessonIndex + 1, $"{command[1]}-Exercise");
+                    }
+                    if (!lessons.Contains(command[1]))
+                    {
+                        lessons.Add(command[1]);
+                        lessons.Add($"{command[1]}-Exercise");
+                    }
+
+
                 }
+
             }
-            Console.WriteLine(string.Join(" ", seq));
+
+
+
+            for (int i = 0; i < lessons.Count; i++)
+            {
+                Console.WriteLine($"{i + 1}.{lessons[i]}");
+            }
+
+
         }
     }
 }
