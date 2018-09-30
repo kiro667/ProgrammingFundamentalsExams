@@ -1,43 +1,44 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace PostOffice
+namespace ConsoleApp42
 {
     class Program
     {
         static void Main(string[] args)
         {
-            var sections = Console.ReadLine().Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);//делим входа на части
-            var regex1 = new Regex(@"([#$%*&])([A-Z]+)(\1)");//намираме валидните главни букви
-            var firstGroup = sections[0];
 
-            var matcher = regex1.Match(firstGroup);
-            if (matcher.Success)//влиза само ако има ваидни главни букви
+            Regex regex = new Regex(@"^\%(?<customer>[A-Z][a-z]+)\%[^|$%.]*?\<(?<product>[\w]+)\>[^|$%.]*?\|(?<count>[\d]+)\|[^|$%.]*?(?<price>[\d]+\.?[\d]+)\$[^|$%.]*?$");
+            double totalIncome = 0.0;
+            string output = "";
+            while (true)
             {
-                var allCapitals = matcher.Groups[2].Value;//правим масив от char
-                var secondGroup = sections[1];
-                var allWords = sections[2].Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);//треатата част делим по space
-
-                foreach (var character in allCapitals)
+                string input = Console.ReadLine();
+                if (input == "end of shift")
                 {
-                    int charAsInt = (int)character;
-                    regex1 = new Regex($"{charAsInt}:(\\d\\d)");//iskam da mi 
-                    //ma4ne charAsInt i nqkakvo dvucifreno 4islo
-                    matcher = regex1.Match(secondGroup);
-                    var length = int.Parse(matcher.Groups[1].Value) + 1;
-                    //Groups[1] e (\\d\\d)
-                    foreach (var word in allWords)
-                    {
-                        if (word.ElementAt(0) == character && word.Length == length)
-                        {
-                            Console.WriteLine(word);
-                            //   break;
-                        }
-                    }
+                    break;
+                }
+                Match match = regex.Match(input);
+
+                if (regex.IsMatch(input))
+                {
+
+                    string customers = match.Groups["customer"].Value;
+                    string product = match.Groups["product"].Value;
+                    int count = int.Parse(match.Groups["count"].Value);
+                    double price = double.Parse(match.Groups["price"].Value);
+                    double totalPrice = count * price;
+                    Console.WriteLine($"{customers}: {product} - {totalPrice:F2}");
+                    totalIncome += totalPrice;
+
                 }
 
+
             }
+
+            Console.WriteLine($"Total income: {totalIncome:F2}");
         }
     }
 }
