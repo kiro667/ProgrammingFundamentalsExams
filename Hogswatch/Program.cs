@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Xml;
 
-namespace zada4a1
+namespace Hogswatch
 {
     class Program
     {
