@@ -1,86 +1,130 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Generic;
 using System.Text;
-using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
-namespace Snowmen
+namespace ConsoleApp9
 {
     class Program
     {
         static void Main(string[] args)
         {
+            List<string> elements = Console.ReadLine().Split().ToList();
 
-            int[] seq = Console.ReadLine().Split().Select(int.Parse).ToArray();
+            string input = Console.ReadLine();
 
-            //trqbva da si zapazim snejnite 4oveci koito sa zagubili tazi bitka
-            while (seq.Length > 1)
-            {//trqbva da pravim na6te bitki dokato imame pove4e ot edin snejen 4okvek
-                List<int> losers = new List<int>();//za6toto na vsqko novo obhojdane trqbva da zapo4vame sus 
-                //snejen 4ovek //List za6toto trqbva da si zapazim po nqkakuv na4in snejnite 4oveci koito sa 
-                //zagubili tazi bitka
+            while (input != "3:1")
+            {
 
+                string[] data = input.Split();
 
-                for (int attacker = 0; attacker < seq.Length; attacker++)
+                string command = data[0];
+
+                if (command == "merge")
                 {
-                    int target = seq[attacker] % seq.Length;
 
-                    int diff = Math.Abs(attacker - target);
+                    int startIndex = int.Parse(data[1]);
+                    int endIndex = int.Parse(data[2]);
 
-                    //za6tot0 primerno kogato ostanat 4 i 3 kogato 4-ta zagubi nie trqbva da priklu4im sledovatelno
-                    // nqma nujda da produljavame napred za6toto tozi snejen 4ovek trqbva da ocelee kogato e edin
-                    //toi trqbva da ocelee
-                    if (seq.Length - losers.Count == 1)
+                    startIndex = validateIndex(startIndex, elements.Count);//kazva mi da podam index i nqkakva duljina
+                    //moqt index e startIndex a puk duljinata e size na moq List
+                    endIndex = validateIndex(endIndex, elements.Count);
+
+                    string concatElements = "";
+
+                    for (int i = startIndex; i <= endIndex; i++)
                     {
-                        //za6tot0 primerno kogato ostanat 4 i 3 kogato 4-ta zagubi nie trqbva da priklu4im 
-                        //sledovatelno nqma nujda da produljavame napred za6toto tozi snejen 4ovek trqbva 
-                        // da ocelee kogato e edin toi trqbva da ocelee
-
-                        break;
+                        concatElements += elements[i];
                     }
 
-                    if (losers.Contains(attacker))//Ako imame nqkoi element koito gubi toi ne moje da atakuva
-                        // i ako tozi element koito atakuva v momenta e ve4e zagubil trqbva da podminem tazi bitka i
-                        //da produljim sus sledva6tata
-                        continue;
-
-                    //kogato imame samoubiistvo
-                    //ako mu kajem dali e 4etno purvo kogato imame nqkakuv snejen 4ovek koito 
-                    //6te se samoubiva tova 6te e problem sledovatelno posledniq else idva purvi
-                    //6te izpolzvam attacker == target
-                    if (attacker == target)
+                    for (int i = startIndex; i <= endIndex; i++)
                     {
-                        Console.WriteLine($"{attacker} performed harakiri");
-                        losers.Add(attacker);//poneje snejniq 4ovek se razru6ava
-                        seq[attacker] = -1;//tuk durjim snejnite 4oveci koito sa se samoubili
+                        elements.RemoveAt(startIndex);//maham 1-vi element za6toto primerno imam tri indeksa kato
+                                                      //merge nuleviq i purviq 6te stanat dva indeksa s vsqko
+                                                      //izminalo zavurtane na while
+                                                      //dumate se namalqva
 
                     }
-                    else if (diff % 2 == 0)
-                    {
-                        Console.WriteLine($"{attacker} x {target} -> {attacker} wins");
-                        //kogato attacker spe4eli zagubiliq e target
-                        losers.Add(target);//poneje attacker pe4eli target go dobavqm kum zagubilite
-                        seq[target] = -1;//tuk durjim snejnite 4oveci koito sa zagubili
 
-                    }
-                    else
-                    {
+                    elements.Insert(startIndex, concatElements);//na start index 6te sloja slepenite elementi()
 
-                        Console.WriteLine($"{attacker} x {target} -> {target} wins");//kogato target spe4eli
-                        //na6iqt zagubil snejen 4ovek e attacker
-                        losers.Add(attacker);//poneje target pe4eli attacker go dobavqm kum zagubilite
-                        seq[attacker] = -1;//tuk durjim snejnite 4oveci koito sa zagubili 
+                }
 
-                    }
-                    losers = losers.Distinct().ToList();//za6toto snejniq 4ovek ne moje da zagubi 2 puti ili da se 
-                    //samoubiee 2 puti//tova maha povtoreniqta
+                else if (command == "divide")
+                {
+                    int index = int.Parse(data[1]);
+                    int partitionsCount = int.Parse(data[2]);
+
+                    List<string> partitions = splitedEqually(elements[index], partitionsCount);//1-to e da go divide
+                                                                                               // elementa na koito e indeksa 2-to e na kolko subbstring da go razdeli e.g abcd  a b cd
+                                                                                               //kato purvi parametur podavam moqta duma kato 2-ri na kolko 4asti 6te go razdeli//sled kato si 
+                                                                                               //napravq dolniqt metod tuk ve4e sa mi razcepenite 4asti
+
+
+                    elements.RemoveAt(index);
+                    elements.InsertRange(index, partitions);
+
                 }
 
 
-                seq = seq.Where(n => n != -1).ToArray();//6te mahne zagubilite i samoubilite se snejni 4oveci
-                //i kato mu kaja .TOArray() tova mi e novata poredica
+                input = Console.ReadLine();
+            }
+            Console.WriteLine(string.Join(" ", elements));
+        }
+
+        private static List<string> splitedEqually(string word, int partitionsCount)//
+        {// tova mi e metoda koito 6te mi razcepi dumata na 4asti i 6te q napulni v edin List i sled tova 6te si 
+            //vurna Lista
+            List<string> result = new List<string>();
+
+            int part = word.Length / partitionsCount;//word e elements[index] ot gorniq metod partitionsCount e
+            // partitionsCount ot gorniq metod
+
+
+            while (word.Length >= part)
+            {
+                //Substring raboti kato se zadava startov index i duljina//e.g startov index e 0 duljinata 
+                //e 2 zaradi tova zatova vzimam 1-te dva elementa a i b
+                result.Add(word.Substring(0, part));
+                //reja 1-te 2 charackter i si gi dobavqm v moq List kazvam 
+                //izreji mi substring ot 0 do 2 i vzimam 1-vo a i b 
+                word = word.Substring(part);//kazvam substring ot index[2] do kraq na dumata kato kaje6 Substring ot
+                                            //nqkakuv index i to reje ot index vsi4ko natatuk//za6toto iskam 
+                                            //ve4e da mi mahne tezi 
+                                            //elementi koito ve4e sum gi razcepil//tova 6te mahne tazi duma koqto mve4e sum q razdelil na substring
+            }
+
+
+
+            if (result.Count == partitionsCount)
+            {
+                return result;
+            }
+            else
+            {
+                string conCatLastTwoElements = result[result.Count - 2] + result[result.Count - 1];
+                result.RemoveRange(result.Count - 2, 2);//1-to e ot kude da po4ne da reje 2-to kolko da izreje
+                result.Add(conCatLastTwoElements);
+                return result;
             }
 
         }
+
+        private static int validateIndex(int index, int length)//1-to e indeksa 2-to duljinata na moq masiv
+        {
+
+            if (index < 0)//tova e startIndex
+            {
+                index = 0;
+            }
+
+            if (index > length - 1)//tova e endIndex
+            {
+                index = length - 1;
+            }
+            return index;
+        }
+
     }
 }
