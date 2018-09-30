@@ -1,60 +1,56 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 
-namespace StarEnigma
+namespace SnowFlake
 {
     class Program
     {
         static void Main(string[] args)
-        {
+        {//da ne ma4va bukvi ili cifri sled tova ^ i tuka si e teksta $
 
-            int n = int.Parse(Console.ReadLine());
-            Regex starReg = new Regex(@"[sSTtaArR]");
-            Regex messageReg = new Regex(@"[^@\-:!>]*@(?<name>[A-Za-z]+)[^@\-:!>]*:(\d+)[^@\-:!>]*!(?<type>A|D)![^@\-:!>]*->(\d+)[^@\-:!>]*");
-            List<string> attacked = new List<string>();
-            List<string> destroyed = new List<string>();
 
-            for (int i = 0; i < n; i++)
+            //da ne ma4va bukvi ili cifri sled tova ^ i tuka si e teksta $ tezi ograni4iteli gi slagame za6toto ni e daden formata
+
+            Regex surface = new Regex(@"^[^A-Za-z0-9]+$");
+            Regex mantle = new Regex(@"^[0-9_]+$");
+            Regex middle = new Regex(@"^[^A-Za-z0-9]+[0-9_]+(?<core>[A-Za-z]+)[0-9_]+[^A-Za-z0-9]+$");
+            //
+            int length = 0;
+
+            for (int i = 0; i < 5; i++)
             {
                 string line = Console.ReadLine();
-                MatchCollection starMatches = starReg.Matches(line);
-                int step = starMatches.Count;
-                StringBuilder decMessage = new StringBuilder();
 
-
-                for (int j = 0; j < line.Length; j++)
+                if (i == 0 || i == 4)
                 {
-                    char current = (char)(line[j] - step);
-                    decMessage.Append(current);
+
+                    Validate(surface, line);
+                }
+                else if (i == 1 || i == 3)
+                {
+                    Validate(mantle, line);
+                }
+                else
+                {
+                    Validate(middle, line);
+                    Match match = middle.Match(line);
+                    length = match.Groups["core"].Length;//moje i ["core"].Value
                 }
 
-                if (messageReg.IsMatch(decMessage.ToString()))
-                {
-                    Match match = messageReg.Match(decMessage.ToString());
-                    string type = match.Groups["type"].Value;
-                    string name = match.Groups["name"].Value;
-                    if (type == "D")
-                    {
-                        destroyed.Add(name);
-                    }
-                    else if (type == "A")
-                    {
-                        attacked.Add(name);
-                    }
-                }
             }
-            Console.WriteLine($"Attacked planets: {attacked.Count}");
-            foreach (string planet in attacked.OrderBy(x => x))
+            Console.WriteLine("Valid");
+            Console.WriteLine(length);
+        }
+
+        private static void Validate(Regex regex, string line)
+        {
+            if (regex.IsMatch(line) == false)
             {
-                Console.WriteLine($"-> {planet}");
-            }
-            Console.WriteLine($"Destroyed planets: {destroyed.Count}");
-            foreach (string planet in destroyed.OrderBy(x => x))
-            {
-                Console.WriteLine($"-> {planet}");
+                Console.WriteLine("Invalid");
+                //poneje sme v metod toi 6te izleze ot tozi metod zatova
+                Environment.Exit(0);//ina4e stava i s return;
             }
         }
     }

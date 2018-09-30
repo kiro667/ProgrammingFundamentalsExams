@@ -1,74 +1,61 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 
-namespace TseamAccount
+namespace ConsoleApp40
 {
     class Program
     {
         static void Main(string[] args)
         {
 
-            List<string> lessons =
-                Console.ReadLine().
-                Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            int n = int.Parse(Console.ReadLine());
+            Regex starReg = new Regex(@"[sSTtaArR]");
+            Regex messageReg = new Regex(@"[^@\-:!>]*@(?<name>[A-Za-z]+)[^@\-:!>]*:(\d+)[^@\-:!>]*!(?<type>A|D)![^@\-:!>]*->(\d+)[^@\-:!>]*");
+            List<string> attacked = new List<string>();
+            List<string> destroyed = new List<string>();
 
-            while (true)
+            for (int i = 0; i < n; i++)
             {
-                string input = Console.ReadLine();
-                if (input == "Play!")
-                {
-                    break;
-                }
-                string[] data =
-                    input.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                string line = Console.ReadLine();
+                MatchCollection starMatches = starReg.Matches(line);
+                int step = starMatches.Count;
+                StringBuilder decMessage = new StringBuilder();
 
-                if (data[0] == "Install")
+
+                for (int j = 0; j < line.Length; j++)
                 {
-                    if (!lessons.Contains(data[1]))
+                    char current = (char)(line[j] - step);
+                    decMessage.Append(current);
+                }
+
+                if (messageReg.IsMatch(decMessage.ToString()))
+                {
+                    Match match = messageReg.Match(decMessage.ToString());
+                    string type = match.Groups["type"].Value;
+                    string name = match.Groups["name"].Value;
+                    if (type == "D")
                     {
-                        lessons.Add(data[1]);
+                        destroyed.Add(name);
+                    }
+                    else if (type == "A")
+                    {
+                        attacked.Add(name);
                     }
                 }
-                else if (data[0] == "Uninstall")
-                {
-                    if (lessons.Contains(data[1]))
-                    {
-                        int remove = lessons.IndexOf(data[1]);
-                        lessons.RemoveAt(remove);
-                    }
-                }
-                else if (data[0] == "Update")
-                {
-                    int update = lessons.IndexOf(data[1]);
-                    if (update + 1 < lessons.Count && update >= 0)
-                    {
-
-
-                        lessons.RemoveAt(update);
-                        lessons.Add(data[1]);
-                    }
-                }
-                else if (data[0] == "Expansion")
-                {
-                    string[] data1 = data[1]
-                        .Split(new[] { '-' }, StringSplitOptions.RemoveEmptyEntries);
-                    if (lessons.Contains(data1[0]))
-                    {
-                        int expansion = lessons.IndexOf(data1[0]);
-                        if (expansion + 1 >= 0 && expansion < lessons.Count - 1)
-                        {
-                            lessons.Insert(expansion + 1, $"{data1[0]}:{data1[1]}");
-                        }
-                        //lessons.Add($"{data1[0]}:{data1[1]}");
-                    }
-
-
-                }
-
-
             }
-            Console.WriteLine(string.Join(" ", lessons));
+            Console.WriteLine($"Attacked planets: {attacked.Count}");
+            foreach (string planet in attacked.OrderBy(x => x))
+            {
+                Console.WriteLine($"-> {planet}");
+            }
+            Console.WriteLine($"Destroyed planets: {destroyed.Count}");
+            foreach (string planet in destroyed.OrderBy(x => x))
+            {
+                Console.WriteLine($"-> {planet}");
+            }
         }
     }
 }
