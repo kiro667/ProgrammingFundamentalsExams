@@ -3,55 +3,51 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace Snowflake
+namespace ConsoleApp31// .*-ta hva6ta 0 ili pove4e a + sa edin ili pove4e ma4a .+
 {
-    class Program
-    {
+    class Program//(.*) (\1)   //ma4vai vsi4ko dokato ne nameri6 analogi4no na 1-ta grupa (\1) tova edin vid kazva vzemi mi su6tata grupa kato 1-ta
+    {//.*  // zvezdata hva6ta 0 ili pove4e sled tova +  hva6ta edin ili pove4e ma4a
         static void Main(string[] args)
-        {//da ne ma4va bukvi ili cifri sled tova ^ i tuka si e teksta $
-
-
-            //da ne ma4va bukvi ili cifri sled tova ^ i tuka si e teksta $ tezi ograni4iteli gi slagame za6toto ni e daden formata
-
-            Regex surface = new Regex(@"^[^A-Za-z0-9]+$");
-            Regex mantle = new Regex(@"^[0-9_]+$");
-            Regex middle = new Regex(@"^[^A-Za-z0-9]+[0-9_]+(?<core>[A-Za-z]+)[0-9_]+[^A-Za-z0-9]+$");
-            //
-            int length = 0;
-
-            for (int i = 0; i < 5; i++)
-            {
-                string line = Console.ReadLine();
-
-                if (i == 0 || i == 4)
-                {
-
-                    Validate(surface, line);
-                }
-                else if (i == 1 || i == 3)
-                {
-                    Validate(mantle, line);
-                }
-                else
-                {
-                    Validate(middle, line);
-                    Match match = middle.Match(line);
-                    length = match.Groups["core"].Length;//moje i ["core"].Value
-                }
-
-            }
-            Console.WriteLine("Valid");
-            Console.WriteLine(length);
-        }
-
-        private static void Validate(Regex regex, string line)
         {
-            if (regex.IsMatch(line) == false)
+
+            //         string encodedText = Console.ReadLine();
+            //         //string-ga go pravq na masiv ot character - ri  i sled toq masiv ot character mi se zapazva 0-lev element v placeholder
+            //         //analogi4no e na new char i dvata placeholder-ra
+            //         string[] placeholders = Console.ReadLine().Split("{}".ToCharArray(),StringSplitOptions.RemoveEmptyEntries);
+            //
+            //         string pattern = @"([A-Za-z]+)(.+)(\1)";
+            //
+            //         var matches = Regex.Matches(encodedText,pattern);
+
+
+            string encodedText = Console.ReadLine();
+            string[] placeholders = Console.ReadLine().Split(new char[] { '{', '}' }, StringSplitOptions.RemoveEmptyEntries);
+
+
+            //  string pattern = @"([A-Za-z]+)(.+)(\1)";//(tova zna4i 4e poslednoto iskam da e su6toto kato 1-to)
+            //()-te pokazvat kolko grupi sa
+
+            Regex pattern = new Regex(@"([A-Za-z]+)([\x00-\x7F]+)(\1)");
+
+            MatchCollection matches = pattern.Matches(encodedText);
+
+            int count = 0;
+
+            foreach (Match match in matches)
             {
-                Console.WriteLine("Invalid");
-                //poneje sme v metod toi 6te izleze ot tozi metod zatova
-                Environment.Exit(0);//ina4e stava i s return;
+                string decodedMessage = match.Groups[1] + placeholders[count++] + match.Groups[3];//1-vo 6te vzeme 
+                //0-viq element posle 1-qt i taka dokato imam elementi 
+                //{this}{exam}{problem}{is}{boring}   za 0-lev 6te vzeme this za 1-vi exam i t.n
+
+
+
+                encodedText = encodedText.Replace(match.Value, decodedMessage);// tova na mqstoto na match.Value slagam decodeMessage
+
             }
+            Console.WriteLine(encodedText);
+
+
+
         }
     }
 }
