@@ -2,7 +2,7 @@
 
 namespace HogswatchZADA4A2
 {
-    class Program
+    class Program//zada4a1
     {
         static void Main(string[] args)
         {
