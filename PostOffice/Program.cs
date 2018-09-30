@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace zada4a3
+namespace PostOffice
 {
     class Program
     {
