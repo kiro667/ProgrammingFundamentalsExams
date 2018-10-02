@@ -1,36 +1,31 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 
-namespace _01._Snowballs
+namespace ConsoleApp78
 {
     class Program
     {
         static void Main(string[] args)
         {
-
-            int snowBallNumbers = int.Parse(Console.ReadLine());
-
-            BigInteger snowBallValue = 0;
-            BigInteger max = 0;
-
-            string output = "";
-
-            for (int i = 1; i <= snowBallNumbers; i++)
+            int down = int.Parse(Console.ReadLine());
+            int key = int.Parse(Console.ReadLine());
+            decimal calc = 0;
+            decimal sum = 0;
+            for (int i = 0; i < down; i++)
             {
-                int snowBallSnow = int.Parse(Console.ReadLine());
-                int snowBallTime = int.Parse(Console.ReadLine());
-                int snowBallQuality = int.Parse(Console.ReadLine());
+                string[] input = Console.ReadLine().Split();
 
-
-
-                snowBallValue = BigInteger.Pow(snowBallSnow / snowBallTime, snowBallQuality);
-                if (snowBallValue >= max)
-                {
-                    max = snowBallValue;
-                    output = $"{snowBallSnow} : {snowBallTime} = {snowBallValue} ({snowBallQuality})";
-                }
+                string site = input[0];
+                decimal visits = decimal.Parse(input[1]);
+                decimal priceper1 = decimal.Parse(input[2]);
+                calc = visits * priceper1;
+                sum += calc;
+                Console.WriteLine(site);
             }
-            Console.WriteLine(output);
+            Console.WriteLine($"Total Loss: {sum:F20}");
+            Console.WriteLine($"Security Token: {BigInteger.Pow(key, down)}");
         }
     }
 }
