@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Hogswatchzad1
+namespace _01._Hogswatch
 {
     class Program
     {
